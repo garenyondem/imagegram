@@ -37,7 +37,7 @@ routes.post('/', async function (req: Request, res: Response, next: NextFunction
 });
 
 // delete post
-routes.post('/:postId', async function (req: Request, res: Response, next: NextFunction): Promise<any> {
+routes.delete('/:postId', async function (req: Request, res: Response, next: NextFunction): Promise<any> {
     const { postId } = req.params;
     await PostModel.findByIdAndDelete(postId);
     res.status(200).json({ success: true });
@@ -68,6 +68,42 @@ routes.get(
     }
 );
 
-// TODO: delete comment
-// TODO: delete post
+// post new comment
+routes.post('/:postId/comments', async function (req: Request, res: Response, next: NextFunction): Promise<any> {
+    const { postId } = req.params;
+    const commentParams = req.body as ICommentSchema;
+    const userId = req.headers['user-id'] as string;
+    if (!userId) {
+        res.status(500);
+        next();
+        return;
+    }
+    commentParams.userId = userId.toObjectId();
+    const post = await PostModel.findByIdAndUpdate(
+        { _id: postId },
+        { $inc: { commentCount: 1 }, $push: { comments: commentParams } },
+        { new: true }
+    );
+
+    res.status(200).json(post);
+    next();
+});
+
+// delete comment
+routes.delete(
+    '/:postId/comments/:commentId',
+    async function (req: Request, res: Response, next: NextFunction): Promise<any> {
+        const { postId, commentId } = req.params;
+        await PostModel.findOneAndUpdate(
+            { _id: postId },
+            {
+                $inc: { commentCount: -1 },
+                $pull: { comments: { _id: commentId.toObjectId() } },
+            }
+        );
+        res.status(200).json({ success: true });
+        next();
+    }
+);
+
 // TODO: upload image
