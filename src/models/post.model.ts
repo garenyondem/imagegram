@@ -11,6 +11,7 @@ export interface IPost extends Document {
     author: IUser;
     comments?: CommentSchema.ICommentSchema[];
     commentCount: number;
+    userId: IUser['_id'];
 }
 
 export interface IPostModel extends Model<IPost> {
@@ -27,8 +28,13 @@ const PostSchema = new Schema(
             type: Number,
             default: 0,
         },
+        userId: {
+            type: Schema.Types.ObjectId,
+            required: true,
+            ref: 'User',
+        },
     },
-    { timestamps: true, toObject: { virtuals: true }, toJSON: { virtuals: true } }
+    { timestamps: true, versionKey: false, toObject: { virtuals: true }, toJSON: { virtuals: true } }
 );
 
 PostSchema.virtual('author', {
