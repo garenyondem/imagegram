@@ -1,30 +1,34 @@
 import { Request, Response, NextFunction } from 'express';
 import { Router } from 'express';
+import { PostModel } from '../models/post.model';
+import { ICommentSchema } from '../schemas/comment.schema';
 
 export const routes = Router();
 
-import mockPosts from '../test/mock.posts.json';
-
 routes.get('/', async function getPosts(req: Request, res: Response, next: NextFunction): Promise<any> {
-    res.status(200).json(mockPosts);
+    const page = req.body.page ? parseInt(req.body.page) : 0;
+
+    const posts = await PostModel.getPosts(page);
+
+    res.status(200).json(posts);
     next();
 });
 
 routes.get('/:postId', async function getPosts(req: Request, res: Response, next: NextFunction): Promise<any> {
     const { postId } = req.params;
 
-    const retVal = mockPosts.find((x) => x._id === postId);
+    const post = await PostModel.findById(postId);
 
-    res.status(200).json(retVal);
+    res.status(200).json(post);
     next();
 });
 
 routes.get('/:postId/comments', async function getPosts(req: Request, res: Response, next: NextFunction): Promise<any> {
     const { postId } = req.params;
 
-    const retVal = mockPosts.find((x) => x._id === postId)?.comments;
+    const comments = await PostModel.findById(postId).projection('comments');
 
-    res.status(200).json(retVal);
+    res.status(200).json(comments);
     next();
 });
 
@@ -33,9 +37,10 @@ routes.get(
     async function getPosts(req: Request, res: Response, next: NextFunction): Promise<any> {
         const { postId, commentId } = req.params;
 
-        const retVal = mockPosts.find((x) => x._id === postId)?.comments.find((x) => x._id === commentId);
+        const comments: ICommentSchema[] = await PostModel.findById(postId).projection('comments');
+        const comment = comments.find((x) => x._id.toString() === commentId);
 
-        res.status(200).json(retVal);
+        res.status(200).json(comment);
         next();
     }
 );
