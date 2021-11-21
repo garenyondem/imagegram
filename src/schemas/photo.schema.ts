@@ -12,8 +12,7 @@ const PhotoSchema: Schema<IPhotoSchema> = new Schema<IPhotoSchema>({
     },
     converted: {
         type: String,
-        required: true,
-        default: '',
+        default: null,
     },
 });
 

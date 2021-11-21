@@ -104,5 +104,3 @@ routes.delete(
         next();
     }
 );
-
-// TODO: upload image
