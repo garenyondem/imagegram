@@ -1,5 +1,6 @@
 import { Schema, Document, model, Model, Types } from 'mongoose';
 import * as PhotoSchema from '../schemas/photo.schema';
+import * as CommentSchema from '../schemas/comment.schema';
 import { IUser } from './user.model';
 
 export interface IPost extends Document {
@@ -8,6 +9,8 @@ export interface IPost extends Document {
     photo?: PhotoSchema.IPhotoSchema;
     createdAt: Date;
     author: IUser;
+    comments?: CommentSchema.ICommentSchema[];
+    commentCount: number;
 }
 
 export interface IPostModel extends Model<IPost> {
@@ -17,11 +20,12 @@ export interface IPostModel extends Model<IPost> {
 
 const PostSchema = new Schema(
     {
-        text: {
-            type: String,
-        },
-        photo: {
-            type: PhotoSchema.default,
+        text: String,
+        photo: PhotoSchema.default,
+        comments: [CommentSchema.default],
+        commentCount: {
+            type: Number,
+            default: 0,
         },
     },
     { timestamps: true, toObject: { virtuals: true }, toJSON: { virtuals: true } }
@@ -45,7 +49,7 @@ class PostClass {
     static async getPosts(page: number): Promise<IPost[]> {
         const pageSize = 15;
         const skip = page * pageSize;
-        return PostModel.find().sort({ _id: -1 }).skip(skip).limit(pageSize).populate('author', 'name -_id');
+        return PostModel.find().sort({ commentCount: -1 }).skip(skip).limit(pageSize).populate('author', 'name -_id');
     }
 }
 
