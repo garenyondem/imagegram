@@ -93,11 +93,18 @@ routes.delete(
     '/:postId/comments/:commentId',
     async function (req: Request, res: Response, next: NextFunction): Promise<any> {
         const { postId, commentId } = req.params;
+        const userId = req.headers['user-id'] as string;
+        if (!userId) {
+            res.status(500);
+            next();
+            return;
+        }
+
         await PostModel.findOneAndUpdate(
             { _id: postId },
             {
                 $inc: { commentCount: -1 },
-                $pull: { comments: { _id: commentId.toObjectId() } },
+                $pull: { comments: { _id: commentId.toObjectId(), userId: userId.toObjectId() } },
             }
         );
         res.status(200).json({ success: true });
