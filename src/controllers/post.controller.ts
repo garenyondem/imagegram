@@ -36,6 +36,14 @@ routes.post('/', async function (req: Request, res: Response, next: NextFunction
     next();
 });
 
+// delete post
+routes.post('/:postId', async function (req: Request, res: Response, next: NextFunction): Promise<any> {
+    const { postId } = req.params;
+    await PostModel.findByIdAndDelete(postId);
+    res.status(200).json({ success: true });
+    next();
+});
+
 // get all comments of post
 routes.get('/:postId/comments', async function (req: Request, res: Response, next: NextFunction): Promise<any> {
     const { postId } = req.params;
