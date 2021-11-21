@@ -1,6 +1,7 @@
 import { Server } from './app';
 import config from './config';
 import { default as initMongoConnections } from './db/mongo';
+import './extensions';
 
 init(config.servicePort).catch((err) => {
     shutdown(err);
