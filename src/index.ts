@@ -1,11 +1,13 @@
 import { Server } from './app';
 import config from './config';
+import { default as initMongoConnections } from './db/mongo';
 
 init(config.servicePort).catch((err) => {
     shutdown(err);
 });
 
 async function init(port: string) {
+    await initMongoConnections();
     new Server(port).start();
 }
 
