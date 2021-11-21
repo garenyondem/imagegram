@@ -4,6 +4,7 @@ import http from 'http';
 import { NODE_ENV } from './utils/enums';
 import morgan from 'morgan';
 import compression from 'compression';
+import path from 'path';
 
 export class Server {
     public app: Express;
@@ -19,6 +20,7 @@ export class Server {
         app.use(compression());
         app.use(express.json());
         app.use(express.urlencoded({ extended: false }));
+        app.use('/public', express.static(path.join(__dirname, 'public')));
 
         app.use('/api', routes);
 
