@@ -48,9 +48,9 @@ routes.delete('/:postId', async function (req: Request, res: Response, next: Nex
 routes.get('/:postId/comments', async function (req: Request, res: Response, next: NextFunction): Promise<any> {
     const { postId } = req.params;
 
-    const comments = await PostModel.findById(postId).projection('comments');
+    const post = await PostModel.findById(postId, { comments: 1 });
 
-    res.status(200).json(comments);
+    res.status(200).json(post?.comments);
     next();
 });
 
@@ -60,9 +60,8 @@ routes.get(
     async function (req: Request, res: Response, next: NextFunction): Promise<any> {
         const { postId, commentId } = req.params;
 
-        const comments: ICommentSchema[] = await PostModel.findById(postId).projection('comments');
-        const comment = comments.find((x) => x._id.toString() === commentId);
-
+        const post = await PostModel.findById(postId, { comments: 1 });
+        const comment = post?.comments?.find((x) => x._id.toString() === commentId);
         res.status(200).json(comment);
         next();
     }
