@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Router } from 'express';
 import multer from 'multer';
 import { nanoid } from 'nanoid';
+import { em } from '../utils/events';
 
 export const routes = Router();
 
@@ -48,10 +49,7 @@ routes.post(
         }
 
         const file = req.file;
-
-        // TODO: emmit an event to trigger child process for image processing
-
-        // TODO: save original file location to db
+        em.emit('convert-image', file?.path);
 
         res.status(200).json({ url: file?.path });
         next();
