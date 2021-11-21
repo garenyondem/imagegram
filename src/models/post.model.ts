@@ -55,7 +55,17 @@ class PostClass {
     static async getPosts(page: number): Promise<IPost[]> {
         const pageSize = 15;
         const skip = page * pageSize;
-        return PostModel.find().sort({ commentCount: -1 }).skip(skip).limit(pageSize).populate('author', 'name -_id');
+        const posts = await PostModel.find()
+            .sort({ commentCount: -1 })
+            .skip(skip)
+            .limit(pageSize)
+            .populate('author', 'name -_id');
+
+        for (const post of posts) {
+            post.comments?.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+            post.comments?.splice(0, 2);
+        }
+        return posts;
     }
 }
 
